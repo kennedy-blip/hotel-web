@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuxeDine | Gourmet Hotel Recipes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --primary: #c5a059;
+            --secondary: #1a1a1a;
+            --accent: #f8f5f0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--accent);
+            color: var(--secondary);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .recipe-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .gradient-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .modal-active {
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header class="fixed w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-utensils text-2xl text-[#c5a059]"></i>
+                <span class="text-2xl font-bold font-serif tracking-wider">LUXEDINE</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="nav-link relative font-medium">Home</a>
+                <a href="#recipes" class="nav-link relative font-medium">Our Menu</a>
+                <a href="#about" class="nav-link relative font-medium">About</a>
+                <a href="#contact" class="nav-link relative font-medium">Contact</a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white w-full border-t border-gray-100 absolute left-0 p-6 shadow-xl">
+            <div class="flex flex-col space-y-4">
+                <a href="#home" class="mobile-link text-lg font-medium">Home</a>
+                <a href="#recipes" class="mobile-link text-lg font-medium">Our Menu</a>
+                <a href="#about" class="mobile-link text-lg font-medium">About</a>
+                <a href="#contact" class="mobile-link text-lg font-medium">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=2000" alt="Hero Background" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/40"></div>
+        </div>
+        
+        <div class="relative z-10 text-center text-white px-4" data-aos="fade-up">
+            <h4 class="uppercase tracking-widest mb-4 text-sm md:text-base font-semibold text-[#c5a059]">Welcome to Excellence</h4>
+            <h1 class="text-5xl md:text-8xl mb-8 leading-tight">Gourmet Experience<br>At Your Fingertips</h1>
+            <a href="#recipes" class="bg-[#c5a059] hover:bg-[#b08d48] text-white px-10 py-4 rounded-full transition-all duration-300 transform hover:scale-105 inline-block text-lg font-semibold">Explore Our Recipes</a>
+        </div>
+
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <i class="fas fa-chevron-down text-white text-2xl"></i>
+        </div>
+    </section>
+
+    <!-- Recipe Search Section -->
+    <section id="recipes" class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-4xl md:text-5xl mb-4">Discover Chef Specialties</h2>
+                <div class="w-24 h-1 bg-[#c5a059] mx-auto mb-8"></div>
+                <p class="text-gray-600 max-w-2xl mx-auto">Explore our curated collection of international recipes, crafted by world-class chefs for your home kitchen.</p>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="max-w-4xl mx-auto mb-12" data-aos="fade-up">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <input type="text" id="recipe-search" placeholder="Search recipes (e.g., Pasta, Salmon...)" class="w-full px-6 py-4 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#c5a059] pl-14 shadow-sm transition-all">
+                        <i class="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <button id="search-btn" class="bg-[#1a1a1a] text-white px-8 py-4 rounded-full hover:bg-black transition-colors font-semibold">Search Now</button>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-3 mt-8">
+                    <button class="filter-btn active bg-[#c5a059] text-white px-6 py-2 rounded-full text-sm font-medium transition-all" data-query="all">All Dishes</button>
+                    <button class="filter-btn bg-gray-100 hover:bg-[#c5a059] hover:text-white px-6 py-2 rounded-full text-sm font-medium transition-all" data-query="breakfast">Breakfast</button>
+                    <button class="filter-btn bg-gray-100 hover:bg-[#c5a059] hover:text-white px-6 py-2 rounded-full text-sm font-medium transition-all" data-query="main course">Lunch & Dinner</button>
+                    <button class="filter-btn bg-gray-100 hover:bg-[#c5a059] hover:text-white px-6 py-2 rounded-full text-sm font-medium transition-all" data-query="dessert">Desserts</button>
+                    <button class="filter-btn bg-gray-100 hover:bg-[#c5a059] hover:text-white px-6 py-2 rounded-full text-sm font-medium transition-all" data-query="drink">Beverages</button>
+                </div>
+            </div>
+
+            <!-- Recipe Grid -->
+            <div id="recipe-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Recipes will be injected here -->
+                <div class="col-span-full flex flex-col items-center py-20">
+                    <div class="loader mb-4"></div>
+                    <p class="text-gray-500">Preparing our finest selection...</p>
+                </div>
+            </div>
+
+            <!-- Empty State / Error -->
+            <div id="error-state" class="hidden col-span-full text-center py-20">
+                <i class="fas fa-utensils-crossed text-5xl text-gray-300 mb-4"></i>
+                <p class="text-xl text-gray-600">No recipes found. Try a different search!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-[#f8f5f0] overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <div class="lg:w-1/2 relative" data-aos="fade-right">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=800" alt="Chef" class="rounded-2xl shadow-2xl relative z-10">
+                    <div class="absolute -bottom-8 -right-8 w-64 h-64 bg-[#c5a059] -z-0 rounded-2xl hidden md:block"></div>
+                </div>
+                <div class="lg:w-1/2" data-aos="fade-left">
+                    <h2 class="text-4xl md:text-5xl mb-6">A Legacy of Culinary Art</h2>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        At LuxeDine, we believe that food is more than just sustenance—it's an experience that connects cultures and creates memories. Our hotel kitchen has been serving royalty and travelers for decades.
+                    </p>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-3xl font-bold text-[#c5a059] mb-2">25+</h4>
+                            <p class="text-sm uppercase tracking-wider font-semibold">Master Chefs</p>
+                        </div>
+                        <div>
+                            <h4 class="text-3xl font-bold text-[#c5a059] mb-2">15k+</h4>
+                            <p class="text-sm uppercase tracking-wider font-semibold">Daily Recipes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recipe Modal -->
+    <div id="recipe-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" id="modal-overlay"></div>
+        <div class="relative bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl">
+            <button id="close-modal" class="absolute top-4 right-4 z-10 bg-white/50 hover:bg-white w-10 h-10 rounded-full flex items-center justify-center transition-all">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <div id="modal-content">
+                <!-- Recipe details injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-[#1a1a1a] text-white py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fas fa-utensils text-2xl text-[#c5a059]"></i>
+                        <span class="text-2xl font-bold font-serif tracking-wider">LUXEDINE</span>
+                    </div>
+                    <p class="text-gray-400 max-w-sm mb-6">Providing luxury culinary experiences and world-class hospitality since 1995. Join our exclusive gourmet club.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-[#c5a059] hover:border-[#c5a059] transition-all"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-[#c5a059] hover:border-[#c5a059] transition-all"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-[#c5a059] hover:border-[#c5a059] transition-all"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-xl font-serif mb-6">Quick Links</h4>
+                    <ul class="space-y-4 text-gray-400">
+                        <li><a href="#home" class="hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#recipes" class="hover:text-white transition-colors">Our Menu</a></li>
+                        <li><a href="#about" class="hover:text-white transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-serif mb-6">Newsletter</h4>
+                    <p class="text-gray-400 mb-4 text-sm">Subscribe for weekly gourmet recipes.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Email" class="bg-white/10 px-4 py-2 rounded-l-md w-full focus:outline-none focus:ring-1 focus:ring-[#c5a059]">
+                        <button class="bg-[#c5a059] px-4 py-2 rounded-r-md hover:bg-[#b08d48] transition-colors"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
+                &copy; 2024 LuxeDine Hotel & Resort. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // API Configuration - Using TheMealDB (Free, no key required for basic search)
+        // Alternative to Spoonacular to avoid API key issues in demo
+        const API_BASE = "https://www.themealdb.com/api/json/v1/1/";
+
+        // State
+        let currentRecipes = [];
+
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // DOM Elements
+        const recipeGrid = document.getElementById('recipe-grid');
+        const searchInput = document.getElementById('recipe-search');
+        const searchBtn = document.getElementById('search-btn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const recipeModal = document.getElementById('recipe-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModal = document.getElementById('close-modal');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchRecipes('chicken'); // Default search
+        });
+
+        // Search Handlers
+        searchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                fetchRecipes(query);
+                // Clear active filters
+                filterBtns.forEach(b => b.classList.remove('active', 'bg-[#c5a059]', 'text-white'));
+                filterBtns.forEach(b => b.classList.add('bg-gray-100'));
+            }
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchBtn.click();
+        });
+
+        // Filter Handlers
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const query = btn.getAttribute('data-query');
+                
+                // UI Update
+                filterBtns.forEach(b => {
+                    b.classList.remove('active', 'bg-[#c5a059]', 'text-white');
+                    b.classList.add('bg-gray-100');
+                });
+                btn.classList.add('active', 'bg-[#c5a059]', 'text-white');
+                btn.classList.remove('bg-gray-100');
+
+                if (query === 'all') {
+                    fetchRecipes('popular');
+                } else {
+                    fetchRecipes(query);
+                }
+            });
+        });
+
+        // Fetch Recipes Function
+        async function fetchRecipes(query) {
+            try {
+                showLoader();
+                
+                // TheMealDB doesn't have a broad "all" category well, so we search by main ingredient or category
+                // For a more robust experience, we use their search by name API
+                const response = await fetch(`${API_BASE}search.php?s=${query}`);
+                const data = await response.json();
+
+                if (data.meals) {
+                    currentRecipes = data.meals;
+                    displayRecipes(data.meals);
+                } else {
+                    // Fallback search if specific search fails
+                    const catResponse = await fetch(`${API_BASE}filter.php?c=${query}`);
+                    const catData = await catResponse.json();
+                    
+                    if (catData.meals) {
+                        currentRecipes = catData.meals;
+                        displayRecipes(catData.meals);
+                    } else {
+                        showEmpty();
+                    }
+                }
+            } catch (error) {
+                console.error("API Error:", error);
+                showEmpty();
+            }
+        }
+
+        function displayRecipes(recipes) {
+            recipeGrid.innerHTML = '';
+            
+            recipes.slice(0, 9).forEach((recipe, index) => {
+                const card = document.createElement('div');
+                card.className = 'recipe-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer';
+                card.setAttribute('data-aos', 'fade-up');
+                card.setAttribute('data-aos-delay', index * 100);
+                
+                // Some APIs return different field names
+                const id = recipe.idMeal;
+                const title = recipe.strMeal;
+                const thumb = recipe.strMealThumb;
+                const category = recipe.strCategory || 'Gourmet';
+                const area = recipe.strArea || 'International';
+
+                card.innerHTML = `
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="${thumb}" alt="${title}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#c5a059]">
+                            ${area}
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-[#c5a059] text-xs font-bold uppercase tracking-widest mb-2 block">${category}</span>
+                        <h3 class="text-xl font-serif font-bold mb-3 line-clamp-1">${title}</h3>
+                        <div class="flex items-center text-gray-400 text-sm space-x-4">
+                            <span><i class="far fa-clock mr-1"></i> 30-45 min</span>
+                            <span><i class="fas fa-fire mr-1"></i> Medium</span>
+                        </div>
+                    </div>
+                `;
+
+                card.onclick = () => openRecipeDetails(id);
+                recipeGrid.appendChild(card);
+            });
+            
+            // Refresh AOS
+            AOS.refresh();
+        }
+
+        async function openRecipeDetails(id) {
+            try {
+                // Show loading state in modal
+                modalContent.innerHTML = `<div class="flex items-center justify-center py-20"><div class="loader"></div></div>`;
+                recipeModal.classList.remove('hidden');
+                document.body.classList.add('modal-active');
+
+                const response = await fetch(`${API_BASE}lookup.php?i=${id}`);
+                const data = await response.json();
+                const meal = data.meals[0];
+
+                // Extract ingredients
+                const ingredients = [];
+                for (let i = 1; i <= 20; i++) {
+                    if (meal[`strIngredient${i}`]) {
+                        ingredients.push(`${meal[`strMeasure${i}`]} ${meal[`strIngredient${i}`]}`);
+                    } else break;
+                }
+
+                modalContent.innerHTML = `
+                    <div class="flex flex-col md:flex-row">
+                        <div class="md:w-1/2 h-80 md:h-auto">
+                            <img src="${meal.strMealThumb}" class="w-full h-full object-cover" alt="${meal.strMeal}">
+                        </div>
+                        <div class="md:w-1/2 p-8 md:p-12">
+                            <span class="text-[#c5a059] font-bold uppercase tracking-widest text-sm">${meal.strCategory} | ${meal.strArea}</span>
+                            <h2 class="text-4xl font-serif mt-2 mb-6">${meal.strMeal}</h2>
+                            
+                            <div class="mb-8">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <i class="fas fa-list-ul text-[#c5a059] mr-2"></i> Ingredients
+                                </h4>
+                                <ul class="grid grid-cols-1 gap-2">
+                                    ${ingredients.map(ing => `<li class="text-gray-600 text-sm flex items-center"><span class="w-1.5 h-1.5 bg-[#c5a059] rounded-full mr-2"></span>${ing}</li>`).join('')}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <i class="fas fa-utensils text-[#c5a059] mr-2"></i> Instructions
+                                </h4>
+                                <p class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+                                    ${meal.strInstructions}
+                                </p>
+                            </div>
+
+                            <div class="mt-8 pt-8 border-t border-gray-100 flex items-center justify-between">
+                                <a href="${meal.strYoutube || '#'}" target="_blank" class="flex items-center text-red-600 font-semibold hover:underline">
+                                    <i class="fab fa-youtube mr-2"></i> Watch Video
+                                </a>
+                                <button class="bg-[#1a1a1a] text-white px-6 py-2 rounded-full text-sm hover:bg-black transition-all">Print Recipe</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                modalContent.innerHTML = `<div class="p-12 text-center">Something went wrong. Please try again later.</div>`;
+            }
+        }
+
+        // UI Helpers
+        function showLoader() {
+            recipeGrid.innerHTML = `
+                <div class="col-span-full flex flex-col items-center py-20">
+                    <div class="loader mb-4"></div>
+                    <p class="text-gray-500">Fetching the latest recipes...</p>
+                </div>
+            `;
+        }
+
+        function showEmpty() {
+            recipeGrid.innerHTML = `
+                <div class="col-span-full text-center py-20" data-aos="fade-up">
+                    <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
+                    <p class="text-xl text-gray-600">No results found for your search.</p>
+                    <button onclick="fetchRecipes('chicken')" class="mt-4 text-[#c5a059] font-semibold hover:underline">View Featured Recipes</button>
+                </div>
+            `;
+        }
+
+        // Modal Controls
+        function closeModalFunc() {
+            recipeModal.classList.add('hidden');
+            document.body.classList.remove('modal-active');
+        }
+
+        closeModal.onclick = closeModalFunc;
+        modalOverlay.onclick = closeModalFunc;
+
+        // Mobile Menu
+        mobileMenuBtn.onclick = () => {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        };
+
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.onclick = () => {
+                mobileMenu.classList.add('hidden');
+                const icon = mobileMenuBtn.querySelector('i');
+                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times');
+            };
+        });
+
+        // Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Sticky Nav Effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'bg-white/95');
+                header.classList.remove('py-4', 'bg-white/80');
+            } else {
+                header.classList.add('py-4', 'bg-white/80');
+                header.classList.remove('py-2', 'bg-white/95');
+            }
+        });
+    </script>
+</body>
+</html>
